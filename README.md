@@ -21,3 +21,9 @@
 * DHT22 (Sensor de Temperatura e Umidade)
 * Pull-up de 4.7 kΩ (Necessário para a linha de dados do DHT)
 * Cabos Jumper, Protoboard e Cabo Micro USB para alimentação
+
+**Referências**
+
+* ESP32/ESP8266 Plot Sensor Readings in Real Time Charts – Web Server - https://randomnerdtutorials.com/esp32-esp8266-plot-chart-web-server/
+
+* Arduino IDE 2: Install ESP32 LittleFS Uploader (Upload Files to the Filesystem) - https://randomnerdtutorials.com/arduino-ide-2-install-esp32-littlefs/

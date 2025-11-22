@@ -82,7 +82,7 @@ void setup(){
 
   // Configura a rota principal (para servir o index.html)
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/Humidash.html", "text/html");
+    request->send(LittleFS, "/index.html", "text/html");
   });
   
   // Rota para buscar a temperatura
@@ -102,4 +102,5 @@ void setup(){
 
 void loop(){
   // O loop fica vazio porque o AsyncWebServer lida com as requisições
+
 }

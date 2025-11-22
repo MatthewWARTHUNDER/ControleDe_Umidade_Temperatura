@@ -1,0 +1,246 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <style>
+        /* Estilos Globais */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9; /* Fundo suave */
+            min-width: 320px;
+        }
+
+        /* Estilos da Navbar */
+        .navbar {
+            background-color: #059e8a; /* Cor verde/azul do seu gráfico */
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilos do Conteúdo Principal (Container de Layout) */
+        .main-content {
+            display: flex; /* Habilita Flexbox para o layout lateral */
+            max-width: 1000px; /* Limita a largura para melhor visualização em telas maiores */
+            margin: 20px auto; /* Centraliza o conteúdo principal e adiciona margem */
+            padding: 0 10px;
+            gap: 20px; /* Espaçamento entre a coluna lateral e os gráficos */
+        }
+
+        /* Estilos da Coluna Lateral de Valores */
+        .sidebar {
+            width: 250px; /* Largura fixa para a coluna lateral */
+            flex-shrink: 0; /* Impede que a coluna lateral encolha */
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            height: fit-content; /* Ajusta a altura ao conteúdo */
+        }
+
+        .data-box {
+            background-color: #e0f2f1; /* Cor suave para a caixa de dados */
+            border-left: 5px solid #059e8a;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .data-box h3 {
+            margin-top: 0;
+            color: #059e8a;
+            font-size: 1.2rem;
+        }
+
+        .data-box p {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 5px 0 0 0;
+        }
+
+        /* Estilos da Área de Gráficos */
+        .charts-area {
+            flex-grow: 1; /* Permite que a área de gráficos ocupe o espaço restante */
+        }
+
+        .container {
+            min-width: 310px;
+            height: 300px; /* Altura padrão para os gráficos */
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Estilos do Footer */
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+
+        /* Media Query para telas menores (smartphones) */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column; /* Empilha a barra lateral e os gráficos */
+            }
+
+            .sidebar {
+                width: auto; /* A barra lateral ocupa toda a largura */
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        Humidash
+    </div>
+
+    <div class="main-content">
+        
+        <div class="sidebar">
+            <h2>📊 Valores Atuais</h2>
+            <div class="data-box">
+                <h3>Temperatura</h3>
+                <p><span id="current-temp">--.-</span> °C</p>
+            </div>
+            <div class="data-box">
+                <h3>Umidade</h3>
+                <p><span id="current-hum">--.-</span> %</p>
+            </div>
+        </div>
+
+        <div class="charts-area">
+            <div id="chart-temperature" class="container"></div>
+            <div id="chart-humidity" class="container"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Desenvolvido por: Matthew de Mello Santos, Eduardo Fernandes Lopes Veiga, Pedro Bizinelli Sato, Bernardo Roche Moreira
+    </div>
+    
+    <script>
+        // Inicialização do Gráfico de Temperatura
+        var chartT = new Highcharts.Chart({
+            chart: { renderTo: 'chart-temperature' },
+            title: { text: 'Gráfico de Temperatura DHT22' },
+            series: [{
+                showInLegend: false,
+                data: []
+            }],
+            plotOptions: {
+                line: {
+                    animation: false,
+                    dataLabels: { enabled: false } /* Desabilitei para não poluir o gráfico */
+                },
+                series: { color: '#059e8a' } 
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: { second: '%H:%M:%S', minute: '%H:%M' }
+            },
+            yAxis: {
+                title: { text: 'Temperatura (°C)' }
+            },
+            credits: { enabled: false }
+        });
+        
+        // Função para atualizar os dados de Temperatura
+        function updateTemperature() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var x = (new Date()).getTime(),
+                        y = parseFloat(this.responseText); 
+                    
+                    // Adiciona o ponto ao gráfico
+                    if (chartT.series[0].data.length > 40) {
+                        chartT.series[0].addPoint([x, y], true, true, true);
+                    } else {
+                        chartT.series[0].addPoint([x, y], true, false, true);
+                    }
+
+                    // Atualiza o valor na coluna lateral
+                    document.getElementById('current-temp').innerText = y.toFixed(1);
+                }
+            };
+
+            xhttp.open("GET", "/temperature", true);
+            xhttp.send();
+        }
+
+        // Inicializa o Gráfico de Umidade
+        var chartH = new Highcharts.Chart({
+            chart: { renderTo: 'chart-humidity' },
+            title: { text: 'Gráfico de Umidade DHT22' },
+            series: [{
+                showInLegend: false,
+                data: []
+            }],
+            plotOptions: {
+                line: {
+                    animation: false,
+                    dataLabels: { enabled: false } /* Desabilitei para não poluir o gráfico */
+                },
+                series: { color: '#0070c0' } /* Cor diferente para a Umidade */
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: { second: '%H:%M:%S', minute: '%H:%M' }
+            },
+            yAxis: {
+                title: { text: 'Umidade (%)' }
+            },
+            credits: { enabled: false }
+        });
+        
+        // Função para atualizar os dados de Umidade
+        function updateHumidity() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var x = (new Date()).getTime(),
+                        y = parseFloat(this.responseText);
+                    
+                    // Adiciona o ponto ao gráfico
+                    if (chartH.series[0].data.length > 40) {
+                        chartH.series[0].addPoint([x, y], true, true, true);
+                    } else {
+                        chartH.series[0].addPoint([x, y], true, false, true);
+                    }
+                    
+                    // Atualiza o valor na coluna lateral
+                    document.getElementById('current-hum').innerText = y.toFixed(1);
+                }
+            };
+
+            xhttp.open("GET", "/humidity", true);
+            xhttp.send();
+        }
+
+        // Chamadas iniciais e Intervalos de atualização
+        // Executa as funções a cada 30 segundos
+        setInterval(updateTemperature, 30000);
+        setInterval(updateHumidity, 30000);
+        
+        // Chamada inicial para carregar os valores ao abrir a página
+        updateTemperature();
+        updateHumidity();
+
+    </script>
+</body>
+</html>

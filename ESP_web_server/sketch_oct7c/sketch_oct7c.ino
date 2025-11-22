@@ -10,7 +10,7 @@
 // --- Bibliotecas e Configuração do Sensor DHT22 ---
 #include <DHT.h>
 #include <Adafruit_Sensor.h> 
-#define DHTPIN 26            
+#define DHTPIN 15           
 #define DHTTYPE DHT22         
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -82,7 +82,7 @@ void setup(){
 
   // Configura a rota principal (para servir o index.html)
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/index.html", "text/html");
+    request->send(LittleFS, "/Humidash.html", "text/html");
   });
   
   // Rota para buscar a temperatura
